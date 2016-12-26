@@ -1,0 +1,42 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "onekey h5 pages",
+  "main": "gulpfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^2.3.2",
+    "gulp-clone": "^1.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-connect": "^5.0.0",
+    "gulp-flatten": "^0.3.1",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-imagemin": "^3.0.3",
+    "gulp-jshint": "^2.0.4",
+    "gulp-minify-html": "^1.0.6",
+    "gulp-order": "^1.1.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-rev": "^7.1.2",
+    "gulp-rev-collector": "^1.1.0",
+    "gulp-rev-replace": "^0.4.3",
+    "gulp-sass": "^3.0.0",
+    "gulp-sourcemaps": "^1.9.1",
+    "gulp-uglify": "^2.0.0",
+    "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.11",
+    "imagemin-jpegtran": "^5.0.2",
+    "install": "^0.8.4",
+    "jpegtran-bin": "^3.2.0",
+    "jshint": "^2.9.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "webkong",
+  "license": "ISC",
+  "keywords":["shareit"]
+}

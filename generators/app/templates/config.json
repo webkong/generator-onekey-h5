@@ -1,0 +1,26 @@
+{
+    "dev": {
+        "css": "dev/css/",
+        "html": "dev/",
+        "image": "dev/images/",
+        "js": "dev/js/",
+        "root": "dev/",
+        "static": "dev/static/"
+    },
+    "public": {
+        "css": "public/css/",
+        "html": "public/",
+        "image": "public/images/",
+        "js": "public/js/",
+        "root": "public/",
+        "static": "public/static/"
+    },
+    "src": {
+        "css": "src/css/**",
+        "html": "src/html/**",
+        "image": "src/images/**",
+        "js": "src/js/**",
+        "root": "src/",
+        "static": "src/static/"
+    }
+}
