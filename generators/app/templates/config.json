@@ -3,14 +3,25 @@
         "css": "dev/css/",
         "html": "dev/",
         "image": "dev/images/",
+        "font": "dev/font/",
         "js": "dev/js/",
         "root": "dev/",
         "static": "dev/static/"
+    },
+    "temp": {
+        "css": "tmp/css/",
+        "html": "tmp/",
+        "image": "tmp/images/",
+        "font": "tmp/font/",
+        "js": "tmp/js/",
+        "root": "tmp/",
+        "static": "tmp/static/"
     },
     "public": {
         "css": "public/css/",
         "html": "public/",
         "image": "public/images/",
+        "font": "public/font/",
         "js": "public/js/",
         "root": "public/",
         "static": "public/static/"
@@ -19,6 +30,7 @@
         "css": "src/css/**",
         "html": "src/html/**",
         "image": "src/images/**",
+        "font": "src/font/",
         "js": "src/js/**",
         "root": "src/",
         "static": "src/static/"

@@ -1,6 +1,6 @@
 {
-  "name": "test",
-  "version": "1.0.0",
+  "name": "active-build-factory",
+  "version": "1.0.1",
   "description": "onekey h5 pages",
   "main": "gulpfile.js",
   "dependencies": {},
@@ -8,6 +8,7 @@
     "babel-preset-es2015": "^6.18.0",
     "gulp-autoprefixer": "^3.1.1",
     "gulp-babel": "^6.1.2",
+    "gulp-cache": "^0.4.6",
     "gulp-clean": "^0.3.2",
     "gulp-clean-css": "^2.3.2",
     "gulp-clone": "^1.0.0",
@@ -38,5 +39,8 @@
   },
   "author": "webkong",
   "license": "ISC",
-  "keywords":["shareit"]
+  "keywords": [
+    "shareit",
+    "webkong"
+  ]
 }

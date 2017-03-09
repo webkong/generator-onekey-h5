@@ -3,7 +3,6 @@
 var dir = require('./config.json');
 
 //导入依赖
-
 var gulp = require('gulp'),
     util = require('gulp-util'),
     jshint = require('gulp-jshint'), //校验js
@@ -53,15 +52,24 @@ gulp.task('acss', function() {
         .pipe(connect.reload());
 });
 
-gulp.task('bcss', ['acss'], function() {
+gulp.task('bcss', function() {
     util.log('autofixer and minify css');
-    return gulp.src(dir.dev.css + '**/*.css')
+    return gulp.src(dir.src.css)
+        .pipe(sass())
         .pipe(autoprefixer({ //添加前缀
             browsers: ['last 2 versions'],
             cascade: false
         }))
+        .pipe(order([
+            'index.css',
+            'mobiscroll_002.css',
+            'mobiscroll_001.css',
+            'mobiscroll_003.css',
+            '**.css'
+        ]))
+        .pipe(concat('all.css'))
         .pipe(cleanCSS())
-        .pipe(gulp.dest(dir.public.css))
+        .pipe(gulp.dest(dir.temp.css));
 });
 
 //处理js
@@ -81,12 +89,21 @@ gulp.task('ajs', function() {
         .pipe(connect.reload());
 });
 
-gulp.task('bjs', ['ajs'], function() {
-    return gulp.src(dir.dev.js + '**/*.js')
-        .pipe(sourcemaps.init())
+gulp.task('bjs', function() {
+    return gulp.src(dir.src.js + '*.js')
+        .pipe(babel({
+            presets: ['es2015']
+        }))
+        .pipe(order([
+            'jquery.min.js',
+            'jquery.**.js',
+            '**.js'
+        ]))
+        .pipe(concat('all.js'))
         .pipe(uglify())
-        .pipe(sourcemaps.write('./map/'))
-        .pipe(gulp.dest(dir.public.js));
+        .pipe(gulp.dest(dir.temp.js))
+        .pipe(connect.reload());
+
 });
 
 //校验js
@@ -114,12 +131,23 @@ gulp.task('bimg', function() {
 });
 
 //移动静态资源
-gulp.task('clone', function() {
+gulp.task('clonefont', function() {
+    return gulp.src(dir.src.font + '**')
+        .pipe(clone())
+        .pipe(gulp.dest(dir.public.font))
+        .pipe(gulp.dest(dir.dev.font))
+        .pipe(connect.reload());
+});
+
+gulp.task('clonestatic', function() {
     return gulp.src(dir.src.static + '**')
         .pipe(clone())
         .pipe(gulp.dest(dir.public.static))
         .pipe(gulp.dest(dir.dev.static))
         .pipe(connect.reload());
+});
+gulp.task('clone', ['clonefont', 'clonestatic'], function() {
+    util.log('clone done');
 });
 
 //html
@@ -127,12 +155,12 @@ gulp.task('ahtml', function() {
     gulp.src(dir.src.html)
         .pipe(clone())
         .pipe(gulp.dest(dir.dev.root))
-        //.pipe(gulp.dest(dir.public.root))
+        .pipe(gulp.dest(dir.public.root))
 });
 
 
 gulp.task("revision", ["bcss", "bjs"], function() {
-    return gulp.src([dir.dev.root + '**/*.css', dir.dev.root + '**/*.js'])
+    return gulp.src([dir.temp.root + '**/*.css', dir.temp.root + '**/*.js'])
         .pipe(rev())
         .pipe(gulp.dest(dir.public.root))
         .pipe(rev.manifest())
@@ -140,7 +168,7 @@ gulp.task("revision", ["bcss", "bjs"], function() {
 })
 
 gulp.task("revreplace", ["revision"], function() {
-    var manifest = gulp.src("./" + 'public' + "/rev-manifest.json");
+    var manifest = gulp.src("./public/rev-manifest.json");
 
     return gulp.src(dir.src.html)
         .pipe(revReplace({
@@ -156,7 +184,7 @@ gulp.task('dev', ['acss', 'ajs', 'aimg', 'clone', 'ahtml'], function() {
     util.log('------success dev------');
 });
 
-gulp.task('build', ['bimg', 'revreplace'], function() {
+gulp.task('build', ['bimg', 'revreplace', 'clone'], function() {
     util.log('------success build------');
 });
 
@@ -208,4 +236,4 @@ gulp.task('serverPublic', function() {
 });
 
 gulp.task('s', ['serverDev', 'watchdev']);
-gulp.task('sp', ['serverPublic', 'build']);
+gulp.task('sp', ['serverPublic', 'build', 'watchdev']);
