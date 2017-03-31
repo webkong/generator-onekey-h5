@@ -2,6 +2,7 @@
 
 var dir = require('./config.json');
 
+var version = '-v1.0';
 //导入依赖
 var gulp = require('gulp'),
     util = require('gulp-util'),
@@ -11,6 +12,8 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'), //给css加前缀
     htmlmin = require('gulp-htmlmin'), // 压缩html
     imagemin = require('gulp-imagemin'), //图片压缩
+    imageminGifsicle = require('imagemin-gifsicle'),
+    cache = require('gulp-cache'), //cache
     uglify = require('gulp-uglify'), //压缩js
     babel = require('gulp-babel'), //es6
     concat = require('gulp-concat'), //合并
@@ -27,14 +30,14 @@ var gulp = require('gulp'),
 
 //clean
 
-gulp.task('clean', function() {
+gulp.task('clean', function () {
     return gulp.src(dir.dev.root, {
             read: false
         })
         .pipe(clean());
 });
-gulp.task('cleanall', function() {
-    return gulp.src([dir.dev.root, dir.public.root], {
+gulp.task('cleanall', function () {
+    return gulp.src([dir.dev.root, dir.public.root, dir.temp.root], {
             read: false
         })
         .pipe(clean());
@@ -43,16 +46,23 @@ gulp.task('cleanall', function() {
 
 //处理css 
 
-gulp.task('acss', function() {
+gulp.task('acss', function () {
     return gulp.src(dir.src.css)
-        .pipe(sourcemaps.init())
         .pipe(sass())
-        .pipe(sourcemaps.write('./map/'))
+        .pipe(autoprefixer({ //添加前缀
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
+        .pipe(order([
+            'reset.css',
+            '**.css'
+        ]))
+        .pipe(concat('all' + version + '.css'))
         .pipe(gulp.dest(dir.dev.css))
         .pipe(connect.reload());
 });
 
-gulp.task('bcss', function() {
+gulp.task('bcss', function () {
     util.log('autofixer and minify css');
     return gulp.src(dir.src.css)
         .pipe(sass())
@@ -61,20 +71,33 @@ gulp.task('bcss', function() {
             cascade: false
         }))
         .pipe(order([
-            'index.css',
-            'mobiscroll_002.css',
-            'mobiscroll_001.css',
-            'mobiscroll_003.css',
+            'reset.css',
             '**.css'
         ]))
-        .pipe(concat('all.css'))
+        .pipe(concat('all' + version + '.css'))
         .pipe(cleanCSS())
         .pipe(gulp.dest(dir.temp.css));
+});
+gulp.task('ccss', function () {
+    util.log('autofixer and minify css');
+    return gulp.src(dir.src.css)
+        .pipe(sass())
+        .pipe(autoprefixer({ //添加前缀
+            browsers: ['last 2 versions'],
+            cascade: false
+        }))
+        .pipe(order([
+            'reset.css',
+            '**.css'
+        ]))
+        .pipe(concat('all' + version + '.css'))
+        .pipe(cleanCSS())
+        .pipe(gulp.dest(dir.public.css));
 });
 
 //处理js
 
-gulp.task('ajs', function() {
+gulp.task('ajs', function () {
     return gulp.src(dir.src.js + '*.js')
         .pipe(babel({
             presets: ['es2015']
@@ -84,12 +107,12 @@ gulp.task('ajs', function() {
             'jquery.**.js',
             '**.js'
         ]))
-        .pipe(concat('all.js'))
+        .pipe(concat('all' + version + '.js'))
         .pipe(gulp.dest(dir.dev.js))
         .pipe(connect.reload());
 });
 
-gulp.task('bjs', function() {
+gulp.task('bjs', function () {
     return gulp.src(dir.src.js + '*.js')
         .pipe(babel({
             presets: ['es2015']
@@ -99,15 +122,31 @@ gulp.task('bjs', function() {
             'jquery.**.js',
             '**.js'
         ]))
-        .pipe(concat('all.js'))
+        .pipe(concat('all' + version + '.js'))
         .pipe(uglify())
         .pipe(gulp.dest(dir.temp.js))
         .pipe(connect.reload());
 
 });
+gulp.task('cjs', function () {
+    return gulp.src(dir.src.js + '*.js')
+        .pipe(babel({
+            presets: ['es2015']
+        }))
+        .pipe(order([
+            'jquery.min.js',
+            'jquery.**.js',
+            '**.js'
+        ]))
+        .pipe(concat('all' + version + '.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(dir.public.js))
+        .pipe(connect.reload());
+
+});
 
 //校验js
-gulp.task('lint', function() {
+gulp.task('lint', function () {
     return gulp.src(dir.src.js + '/*.js')
         .pipe(jshint({
             progressive: true
@@ -117,21 +156,21 @@ gulp.task('lint', function() {
 
 //处理图片(一般只是move)
 
-gulp.task('aimg', function() {
+gulp.task('aimg', function () {
     return gulp.src(dir.src.image)
         .pipe(clone())
         .pipe(gulp.dest(dir.dev.image))
         .pipe(connect.reload());
 });
 
-gulp.task('bimg', function() {
+gulp.task('bimg', function () {
     return gulp.src(dir.src.image)
         .pipe(imagemin())
         .pipe(gulp.dest(dir.public.image))
 });
 
 //移动静态资源
-gulp.task('clonefont', function() {
+gulp.task('clonefont', function () {
     return gulp.src(dir.src.font + '**')
         .pipe(clone())
         .pipe(gulp.dest(dir.public.font))
@@ -139,19 +178,19 @@ gulp.task('clonefont', function() {
         .pipe(connect.reload());
 });
 
-gulp.task('clonestatic', function() {
+gulp.task('clonestatic', function () {
     return gulp.src(dir.src.static + '**')
         .pipe(clone())
         .pipe(gulp.dest(dir.public.static))
         .pipe(gulp.dest(dir.dev.static))
         .pipe(connect.reload());
 });
-gulp.task('clone', ['clonefont', 'clonestatic'], function() {
+gulp.task('clone', ['clonefont', 'clonestatic'], function () {
     util.log('clone done');
 });
 
 //html
-gulp.task('ahtml', function() {
+gulp.task('ahtml', function () {
     gulp.src(dir.src.html)
         .pipe(clone())
         .pipe(gulp.dest(dir.dev.root))
@@ -180,42 +219,46 @@ gulp.task("revreplace", ["revision"], function() {
 
 //服务器
 
-gulp.task('dev', ['acss', 'ajs', 'aimg', 'clone', 'ahtml'], function() {
+gulp.task('dev', ['acss', 'ajs', 'aimg', 'clone', 'ahtml'], function () {
     util.log('------success dev------');
 });
 
-gulp.task('build', ['bimg', 'revreplace', 'clone'], function() {
+gulp.task('build', ["ccss", "cjs", 'bimg', 'clone', 'ahtml'], function () {
+    util.log('------success build------');
+});
+
+gulp.task('build-hash', ['revreplace', 'bimg', 'clone'], function () {
     util.log('------success build------');
 });
 
 //监视器
 
-gulp.task('watchdev', ['dev'], function() {
+gulp.task('watchdev', ['dev'], function () {
     gulp.watch(dir.src.css, ['acss'])
-        .on('change', function(event) {
+        .on('change', function (event) {
             console.log('css-- ' + event.path + ' was ' + event.type + ', running tasks acss');
         });
     gulp.watch(dir.src.js, ['ajs'])
-        .on('change', function(event) {
+        .on('change', function (event) {
             console.log('js--- ' + event.path + ' was ' + event.type + ', running tasks ajs');
         });
     gulp.watch(dir.src.image, ['aimg'])
-        .on('change', function(event) {
+        .on('change', function (event) {
             console.log('images--- ' + event.path + ' was ' + event.type + ', running tasks aimg');
         });
     gulp.watch(dir.src.static, ['clone'])
-        .on('change', function(event) {
+        .on('change', function (event) {
             console.log('static\'s file--- ' + event.path + ' was ' + event.type + ', running tasks clone');
         });
     gulp.watch(dir.src.html, ['ahtml'])
-        .on('change', function(event) {
+        .on('change', function (event) {
             console.log('html--- ' + event.path + ' was ' + event.type + ', running tasks ahtml');
         });
 });
 
 //本地服务
 
-gulp.task('serverDev', function() {
+gulp.task('serverDev', function () {
     util.log('Start processing');
     connect.server({
         name: 'Dev',
@@ -224,7 +267,7 @@ gulp.task('serverDev', function() {
         livereload: true
     });
 });
-gulp.task('serverPublic', function() {
+gulp.task('serverPublic', function () {
     util.log('Start processing');
     connect.server({
         name: 'Public',

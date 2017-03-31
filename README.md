@@ -4,13 +4,14 @@
 
 
 ```
+## How to use?
+
+npm install generator-onekey-h5 -g 
 
 yo onekey-h5
-
 
 cd object
 
 npm install
-
 
 ```
